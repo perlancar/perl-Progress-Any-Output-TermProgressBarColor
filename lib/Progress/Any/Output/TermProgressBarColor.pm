@@ -39,8 +39,8 @@ sub update {
     }
 
     my $p = $args{indicator};
-    my $is_complete = $p->{finished} || defined($p->{target}) &&
-        ($p->{pos} >= ($p->{target} + ($p->{ctarget}//0)));
+    my $tot = $p->total_target;
+    my $is_complete = $p->{finished} || defined($tot) && $p->{pos} >= $tot;
     if ($is_complete) {
         if ($ll) {
             print " " x $ll, "\b" x $ll;
@@ -57,7 +57,6 @@ sub update {
     my $bar_bar = "";
     my $bwidth = $self->{width} - length($bar_pct) - length($bar_eta) - 2;
     if ($bwidth > 0) {
-        my $tot = $p->total_target;
         if (defined $tot) {
             my $bfilled = int($p->pos / $tot * $bwidth);
             $bfilled = $bwidth if $bfilled > $bwidth;
