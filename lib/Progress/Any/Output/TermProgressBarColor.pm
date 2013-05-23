@@ -79,7 +79,7 @@ sub update {
         if (defined $msg) {
             $msg = ta_mbtrunc($msg, $bwidth);
             my $mwidth = ta_mbswidth($msg);
-            $bar_bar = ansifg("808080") . $msg . ansifg("ff80000") .
+            $bar_bar = ansifg("808080") . $msg . ansifg("ff8000") .
                 substr($bar_bar, $mwidth);
         }
 
