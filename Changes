@@ -1,5 +1,10 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.03    2013-07-18 (SHARYANTO)
+
+        - Fix RGB color.
+
+
 0.02    2013-05-18 (SHARYANTO)
 
         - Bugfix: didn't display when target is undefined.
