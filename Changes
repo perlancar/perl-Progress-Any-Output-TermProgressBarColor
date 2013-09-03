@@ -1,5 +1,10 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.04    2013-09-03 (SHARYANTO)
+
+        - No functional changes. Update to Progress::Any 0.10.
+
+
 0.03    2013-07-18 (SHARYANTO)
 
         - Fix RGB color.
