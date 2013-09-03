@@ -58,7 +58,7 @@ sub update {
     my $bar;
     my $bar_pct = $p->fill_template("%p%% ", %args);
 
-    my $bar_eta = $p->fill_template("%6e left", %args);
+    my $bar_eta = $p->fill_template("%R", %args);
 
     my $bar_bar = "";
     my $bwidth = $self->{width} - length($bar_pct) - length($bar_eta) - 2;
