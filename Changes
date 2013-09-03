@@ -1,5 +1,12 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.05    2013-09-03 (SHARYANTO)
+
+        [BUG FIXES]
+
+        - Missed some adjustment for Progress::Any 0.10.
+
+
 0.04    2013-09-03 (SHARYANTO)
 
         - No functional changes. Update to Progress::Any 0.10.
