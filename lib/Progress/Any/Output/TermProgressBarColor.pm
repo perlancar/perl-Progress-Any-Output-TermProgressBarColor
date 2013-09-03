@@ -12,8 +12,11 @@ use Text::ANSI::Util qw(ta_mbtrunc ta_mbswidth ta_length);
 $|++;
 
 sub new {
-    my ($class, %args) = @_;
+    my ($class, %args0) = @_;
 
+    my %args;
+
+    $args{width} = delete($args0{width});
     if (!defined($args{width})) {
         my ($cols, $rows);
         if ($ENV{COLUMNS}) {
@@ -24,6 +27,9 @@ sub new {
         }
         $args{width} = $cols;
     }
+
+    keys(%args0) and die "Unknown output parameter(s): ".
+        join(", ", keys(%args0));
 
     bless \%args, $class;
 }
