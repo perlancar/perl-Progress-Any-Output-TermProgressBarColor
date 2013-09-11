@@ -21,11 +21,14 @@ sub new {
         my ($cols, $rows);
         if ($ENV{COLUMNS}) {
             $cols = $ENV{COLUMNS};
-        } else {
-            require Term::Size;
+        } elsif (eval { require Term::Size; 1 }) {
             ($cols, $rows) = Term::Size::chars();
+        } else {
+            $cols = 80;
         }
-        $args{width} = $cols;
+        # on windows if we print at rightmost column, cursor will move to the
+        # next line, so we try to avoid that
+        $args{width} = $^O =~ /Win/ ? $cols-1 : $cols;
     }
 
     keys(%args0) and die "Unknown output parameter(s): ".
