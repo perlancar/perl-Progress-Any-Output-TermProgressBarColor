@@ -1,6 +1,11 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
-0.06    2013-09-03 (SHARYANTO)
+0.07    2013-09-11 (SHARYANTO)
+
+        - No functional changes. Require Win32::Console::ANSI on Windows.
+
+
+0.06    2013-09-11 (SHARYANTO)
 
         - Provide defaults and allow install on Windows.
 
