@@ -6,6 +6,7 @@ use warnings;
 
 use Color::ANSI::Util qw(ansifg ansibg);
 use Text::ANSI::Util qw(ta_mbtrunc ta_mbswidth ta_length);
+require Win32::Console::ANSI if $^O =~ /Win/;
 
 # VERSION
 
