@@ -1,5 +1,10 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.06    2013-09-03 (SHARYANTO)
+
+        - Provide defaults and allow install on Windows.
+
+
 0.05    2013-09-03 (SHARYANTO)
 
         [BUG FIXES]
@@ -24,4 +29,4 @@ Revision history for Progress-Any-Output-TermProgressBarColor
 
 0.01    2013-05-18 (SHARYANTO)
 
-        First, early release.
+        - First, early release.
