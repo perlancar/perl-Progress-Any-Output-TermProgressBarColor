@@ -110,6 +110,19 @@ sub update {
     $self->{lastlen} = ta_length($bar);
 }
 
+sub cleanup {
+    my ($self) = @_;
+
+    # sometimes (e.g. when a subtask's target is undefined) we don't get
+    # state=finished at the end. but we need to cleanup anyway at the end of
+    # app, so this method is provided and will be called by e.g.
+    # Perinci::CmdLine
+
+    my $ll = $self->{lastlen};
+    return unless $ll;
+    print "\b" x $ll;
+}
+
 1;
 # ABSTRACT: Output progress to terminal as color bar
 
