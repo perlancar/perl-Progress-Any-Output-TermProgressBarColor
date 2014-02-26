@@ -1,5 +1,12 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.09    2014-02-26 (SHARYANTO)
+
+        [BUG FIXES]
+
+        - Fix cleanup (\b doesn't erase).
+
+
 0.08    2014-02-26 (SHARYANTO)
 
         - Add cleanup() to allow, e.g. Perinci::CmdLine, to clean the at the end
@@ -29,6 +36,8 @@ Revision history for Progress-Any-Output-TermProgressBarColor
 
 
 0.03    2013-07-18 (SHARYANTO)
+
+        [BUG FIXES]
 
         - Fix RGB color.
 
