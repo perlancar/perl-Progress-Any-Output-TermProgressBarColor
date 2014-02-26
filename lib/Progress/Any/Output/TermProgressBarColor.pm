@@ -120,7 +120,7 @@ sub cleanup {
 
     my $ll = $self->{lastlen};
     return unless $ll;
-    print "\b" x $ll;
+    print "\b" x $ll, " " x $ll, "\b" x $ll;
 }
 
 1;
