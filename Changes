@@ -1,5 +1,11 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.08    2014-02-26 (SHARYANTO)
+
+        - Add cleanup() to allow, e.g. Perinci::CmdLine, to clean the at the end
+          of application run.
+
+
 0.07    2013-09-11 (SHARYANTO)
 
         - No functional changes. Require Win32::Console::ANSI on Windows.

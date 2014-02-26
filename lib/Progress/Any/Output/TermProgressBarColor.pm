@@ -126,7 +126,7 @@ sub cleanup {
 1;
 # ABSTRACT: Output progress to terminal as color bar
 
-=for Pod::Coverage ^(update)$
+=for Pod::Coverage ^(update|cleanup)$
 
 =head1 SYNOPSIS
 
