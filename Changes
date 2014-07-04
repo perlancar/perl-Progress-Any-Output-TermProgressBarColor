@@ -1,5 +1,12 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.10    2014-07-04 (SHARYANTO)
+
+        [BUG FIXES]
+
+        - Avoid division by zero.
+
+
 0.09    2014-02-26 (SHARYANTO)
 
         [BUG FIXES]
