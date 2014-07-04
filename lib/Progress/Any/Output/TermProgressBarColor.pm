@@ -69,7 +69,7 @@ sub update {
     my $bar_bar = "";
     my $bwidth = $self->{width} - length($bar_pct) - length($bar_eta) - 2;
     if ($bwidth > 0) {
-        if (defined $tottgt) {
+        if ($tottgt) {
             my $bfilled = int($totpos / $tottgt * $bwidth);
             $bfilled = $bwidth if $bfilled > $bwidth;
             $bar_bar = ("=" x $bfilled) . (" " x ($bwidth-$bfilled));
