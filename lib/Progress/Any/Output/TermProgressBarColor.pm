@@ -47,7 +47,8 @@ sub update {
     # "erase" previous display
     my $ll = $self->{lastlen};
     if (defined $self->{lastlen}) {
-        print $self->{fh} "\b" x $self->{lastlen};
+        my $fh = $self->{fh};
+        print $fh "\b" x $self->{lastlen};
         undef $self->{lastlen};
     }
 
@@ -58,7 +59,8 @@ sub update {
         defined($tottgt) && $tottgt > 0 && $totpos == $tottgt;
     if ($is_complete) {
         if ($ll) {
-            print $self->{fh} " " x $ll, "\b" x $ll;
+            my $fh = $self->{fh};
+            print $fh " " x $ll, "\b" x $ll;
         }
         return;
     }
@@ -108,7 +110,8 @@ sub update {
         ansifg("ffff00"), $bar_eta,
         "\e[0m",
     );
-    print $self->{fh} $bar;
+    my $fh = $self->{fh};
+    print $fh $bar;
 
     $self->{lastlen} = ta_length($bar);
 }
@@ -123,7 +126,8 @@ sub cleanup {
 
     my $ll = $self->{lastlen};
     return unless $ll;
-    print $self->{fh} "\b" x $ll, " " x $ll, "\b" x $ll;
+    my $fh = $self->{fh};
+    print $fh "\b" x $ll, " " x $ll, "\b" x $ll;
 }
 
 1;
