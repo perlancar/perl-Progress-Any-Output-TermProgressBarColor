@@ -32,6 +32,9 @@ sub new {
         $args{width} = $^O =~ /Win/ ? $cols-1 : $cols;
     }
 
+    $args{fh} = delete($args0{fh});
+    $args{fh} //= \*STDOUT;
+
     keys(%args0) and die "Unknown output parameter(s): ".
         join(", ", keys(%args0));
 
@@ -44,7 +47,7 @@ sub update {
     # "erase" previous display
     my $ll = $self->{lastlen};
     if (defined $self->{lastlen}) {
-        print "\b" x $self->{lastlen};
+        print $self->{fh} "\b" x $self->{lastlen};
         undef $self->{lastlen};
     }
 
@@ -55,7 +58,7 @@ sub update {
         defined($tottgt) && $tottgt > 0 && $totpos == $tottgt;
     if ($is_complete) {
         if ($ll) {
-            print " " x $ll, "\b" x $ll;
+            print $self->{fh} " " x $ll, "\b" x $ll;
         }
         return;
     }
@@ -105,7 +108,7 @@ sub update {
         ansifg("ffff00"), $bar_eta,
         "\e[0m",
     );
-    print $bar;
+    print $self->{fh} $bar;
 
     $self->{lastlen} = ta_length($bar);
 }
@@ -120,7 +123,7 @@ sub cleanup {
 
     my $ll = $self->{lastlen};
     return unless $ll;
-    print "\b" x $ll, " " x $ll, "\b" x $ll;
+    print $self->{fh} "\b" x $ll, " " x $ll, "\b" x $ll;
 }
 
 1;
