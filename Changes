@@ -1,5 +1,12 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.12    2014-10-14 (PERLANCAR)
+
+	- No functional changes.
+
+	- Include screenshot.
+
+
 0.11    2014-10-14 (PERLANCAR)
 
         - Add option: fh, to allow output other than to STDOUT (thanks Przemek
