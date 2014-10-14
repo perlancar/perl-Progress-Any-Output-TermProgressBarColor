@@ -146,6 +146,14 @@ sub cleanup {
 B<THIS IS AN EARLY RELEASE, SOME THINGS ARE NOT YET IMPLEMENTED E.G. TEMPLATE,
 STYLES, COLOR THEMES>.
 
+Sample screenshots:
+
+=begin HTML
+
+<img src="http://blogs.perl.org/users/perlancar/progany-tpc-sample.jpg" />
+
+=end HTML
+
 This output displays progress indicators as colored progress bar on terminal. It
 produces output similar to that produced by L<Term::ProgressBar>, except that it
 uses the L<Progress::Any> framework and has additional features:
