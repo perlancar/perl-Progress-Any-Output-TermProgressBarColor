@@ -199,6 +199,10 @@ strings supported by Progress::Any, this output recognizes these additional
 strings: C<%b> to display the progress bar (using the rest of the available
 width), C<%B> to display the progress bar as well as the message inside it.
 
+=item * fh => handle (default: \*STDOUT)
+
+Instead of the default STDOUT, you can direct the output to another filehandle.
+
 =back
 
 
