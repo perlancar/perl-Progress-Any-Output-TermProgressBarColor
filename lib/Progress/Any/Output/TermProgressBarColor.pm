@@ -229,23 +229,6 @@ Can be used to override color depth detection. See L<Color::ANSI::Util>.
 Can be used to override terminal width detection.
 
 
-=head1 TODO
-
-Background updating (through threads or forked process), so progress can still
-be updated even though the main process is waiting on I/O or external process.
-But we need to think of a good way to synchronize output.
-
-Animations, like rotating line (C<- / | \ ->) or pulsating (C<. o O o .>). Also
-animation by varying colors.
-
-Detect connection speed and degrade to lower-frequency updating if connection is
-slow.
-
-Styles. Preset formats as well as some behaviors like animation.
-
-Detection of column change. On each update(), retrieve terminal width again.
-
-
 =head1 SEE ALSO
 
 L<Progress::Any>
