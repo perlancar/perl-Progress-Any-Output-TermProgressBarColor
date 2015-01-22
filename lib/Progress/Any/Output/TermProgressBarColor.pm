@@ -1,5 +1,8 @@
 package Progress::Any::Output::TermProgressBarColor;
 
+# DATE
+# VERSION
+
 use 5.010001;
 use strict;
 use warnings;
@@ -7,8 +10,6 @@ use warnings;
 use Color::ANSI::Util qw(ansifg ansibg);
 use Text::ANSI::Util qw(ta_mbtrunc ta_mbswidth ta_length);
 require Win32::Console::ANSI if $^O =~ /Win/;
-
-# VERSION
 
 $|++;
 
@@ -35,14 +36,25 @@ sub new {
     $args{fh} = delete($args0{fh});
     $args{fh} //= \*STDOUT;
 
+    $args{show_delay} = delete($args0{show_delay});
+
     keys(%args0) and die "Unknown output parameter(s): ".
         join(", ", keys(%args0));
+
+    $args{_last_hide_time} = time();
 
     bless \%args, $class;
 }
 
 sub update {
     my ($self, %args) = @_;
+
+    my $now = time();
+
+    # if there is show_delay, don't display until we've surpassed it
+    if (defined $self->{show_delay}) {
+        return if $now - $self->{show_delay} < $self->{_last_hide_time};
+    }
 
     # "erase" previous display
     my $ll = $self->{lastlen};
@@ -61,6 +73,7 @@ sub update {
         if ($ll) {
             my $fh = $self->{fh};
             print $fh " " x $ll, "\b" x $ll;
+            $self->{_last_hide_time} = $now;
         }
         return;
     }
@@ -128,6 +141,12 @@ sub cleanup {
     return unless $ll;
     my $fh = $self->{fh};
     print $fh "\b" x $ll, " " x $ll, "\b" x $ll;
+}
+
+sub keep_delay_showing {
+    my $self = shift;
+
+    $self->{_last_hide_time} = time();
 }
 
 1;
@@ -210,6 +229,12 @@ width), C<%B> to display the progress bar as well as the message inside it.
 =item * fh => handle (default: \*STDOUT)
 
 Instead of the default STDOUT, you can direct the output to another filehandle.
+
+=item * show_delay => int
+
+If set, will delay showing the progress bar until the specified number of
+seconds. This can be used to create, e.g. a CLI application that is relatively
+not chatty but after several seconds of inactivity
 
 =back
 
