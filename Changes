@@ -1,5 +1,10 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.14    2015-01-22 (PERLANCAR)
+
+	- Add option: show_delay (and method: keep_delay_showing).
+
+
 0.13    2015-01-03 (PERLANCAR)
 
 	- No functional changes.

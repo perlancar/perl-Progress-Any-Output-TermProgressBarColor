@@ -238,6 +238,14 @@ not chatty but after several seconds of inactivity
 
 =back
 
+=head2 keep_delay_showing()
+
+Can be called to reset the timer that counts down to show progress bar when
+C<show_delay> is defined. For example, if C<show_delay> is 5 seconds and two
+seconds have passed, it should've been 3 seconds before progress bar is shown in
+the next C<update()>. However, if you call this method, it will be 5 seconds
+again before showing.
+
 
 =head1 ENVIRONMENT
 
