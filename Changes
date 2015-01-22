@@ -1,5 +1,13 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.15    2015-01-22 (PERLANCAR)
+
+	- No functional changes.
+
+	- [doc] Tweak POD: show all options in example, mark unimplemented
+	  options.
+
+
 0.14    2015-01-22 (PERLANCAR)
 
 	- Add option: show_delay (and method: keep_delay_showing).
