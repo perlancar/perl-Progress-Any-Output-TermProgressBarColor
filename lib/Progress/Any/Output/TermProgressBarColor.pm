@@ -157,7 +157,13 @@ sub keep_delay_showing {
 =head1 SYNOPSIS
 
  use Progress::Any::Output;
- Progress::Any::Output->set('TermProgressBarColor', width=>50);
+
+ # use default options
+ Progress::Any::Output->set('TermProgressBarColor');
+
+ # set options
+ Progress::Any::Output->set('TermProgressBarColor',
+                            width=>50, fh=>\*STDERR, show_delay=>5);
 
 
 =head1 DESCRIPTION
@@ -211,15 +217,21 @@ width.
 
 =item * color_theme => STR
 
+Not yet implemented.
+
 Choose color theme. To see what color themes are available, use
 C<list_color_themes()>.
 
 =item * style => STR
 
+Not yet implemented.
+
 Choose style. To see what styles are available, use C<list_styles()>. Styles
 determine the characters used for drawing the bar, alignment, etc.
 
 =item * template => STR (default: '%p [%B]%e')
+
+Not yet implemented.
 
 See B<fill_template> in Progress::Any's documentation. Aside from template
 strings supported by Progress::Any, this output recognizes these additional
