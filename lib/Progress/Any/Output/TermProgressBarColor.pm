@@ -107,6 +107,10 @@ sub update {
 
         my $msg = $args{message};
         if (defined $msg) {
+            if ($msg =~ m!</elspan!) {
+                require String::Elide::Parts;
+                $msg = String::Elide::Parts::elide($msg, $bwidth);
+            }
             $msg = ta_mbtrunc($msg, $bwidth);
             my $mwidth = ta_mbswidth($msg);
             $bar_bar = ansifg("808080") . $msg . ansifg("ff8000") .
