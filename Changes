@@ -1,5 +1,10 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.16    2015-01-23 (PERLANCAR)
+
+	- Support eliding message with String::Elide::Parts.
+
+
 0.15    2015-01-22 (PERLANCAR)
 
 	- No functional changes.
