@@ -1,5 +1,12 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.17    2015-01-28 (PERLANCAR)
+
+	- Put patch for working together with
+	  Log::Any::Adapter::ScreenColoredLevel here, moved from
+	  Perinci::CmdLine(::Lite).
+
+
 0.16    2015-01-23 (PERLANCAR)
 
 	- Support eliding message with String::Elide::Parts.
