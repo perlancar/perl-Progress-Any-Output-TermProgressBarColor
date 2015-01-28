@@ -1,5 +1,13 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.18    2015-01-28 (PERLANCAR)
+
+	- [Bugfix] Fixes so that show_delay is reset again after log is
+	  printed.
+
+	- [doc] Complete incomplete sentence.
+
+
 0.17    2015-01-28 (PERLANCAR)
 
 	- Put patch for working together with
