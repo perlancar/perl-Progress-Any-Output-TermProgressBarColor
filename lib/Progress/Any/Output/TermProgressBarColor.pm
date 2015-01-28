@@ -14,24 +14,33 @@ require Win32::Console::ANSI if $^O =~ /Win/;
 $|++;
 
 # patch handle
-my $ph;
+my ($ph1, $ph2);
 
 sub _patch {
-    my $self = shift;
+    my $out = shift;
 
-    return if $ph;
+    return if $ph1;
     require Monkey::Patch::Action;
-    $ph = Monkey::Patch::Action::patch_package(
+    $ph1 = Monkey::Patch::Action::patch_package(
         'Log::Any::Adapter::ScreenColoredLevel', 'hook_before_log', 'replace',
         sub {
-            $self->cleanup;
-            $Progress::Any::output_data{''}{force_update} = 1;
+            $out->cleanup;
+            $Progress::Any::output_data{"$out"}{force_update} = 1;
         }
     ) if defined &{"Log::Any::Adapter::ScreenColoredLevel::hook_before_log"};
+    $ph2 = Monkey::Patch::Action::patch_package(
+        'Log::Any::Adapter::ScreenColoredLevel', 'hook_after_log', 'replace',
+        sub {
+            my ($self, $msg) = @_;
+            print { $self->{_fh} } "\n" unless $msg =~ /\R\z/;
+            $out->keep_delay_showing if $out->{show_delay};
+        }
+    ) if defined &{"Log::Any::Adapter::ScreenColoredLevel::hook_after_log"};
 }
 
 sub _unpatch {
-    undef $ph;
+    undef $ph1;
+    undef $ph2;
 }
 
 sub new {
