@@ -275,7 +275,8 @@ Instead of the default STDOUT, you can direct the output to another filehandle.
 
 If set, will delay showing the progress bar until the specified number of
 seconds. This can be used to create, e.g. a CLI application that is relatively
-not chatty but after several seconds of inactivity
+not chatty but will display progress after several seconds of seeming inactivity
+to indicate users that the process is still going on.
 
 =back
 
