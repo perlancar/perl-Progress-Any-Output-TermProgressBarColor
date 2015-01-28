@@ -13,6 +13,27 @@ require Win32::Console::ANSI if $^O =~ /Win/;
 
 $|++;
 
+# patch handle
+my $ph;
+
+sub _patch {
+    my $self = shift;
+
+    return if $ph;
+    require Monkey::Patch::Action;
+    $ph = Monkey::Patch::Action::patch_package(
+        'Log::Any::Adapter::ScreenColoredLevel', 'hook_before_log', 'replace',
+        sub {
+            $self->cleanup;
+            $Progress::Any::output_data{''}{force_update} = 1;
+        }
+    ) if defined &{"Log::Any::Adapter::ScreenColoredLevel::hook_before_log"};
+}
+
+sub _unpatch {
+    undef $ph;
+}
+
 sub new {
     my ($class, %args0) = @_;
 
@@ -43,7 +64,9 @@ sub new {
 
     $args{_last_hide_time} = time();
 
-    bless \%args, $class;
+    my $self = bless \%args, $class;
+    $self->_patch;
+    $self;
 }
 
 sub update {
@@ -57,11 +80,10 @@ sub update {
     }
 
     # "erase" previous display
-    my $ll = $self->{lastlen};
-    if (defined $self->{lastlen}) {
-        my $fh = $self->{fh};
-        print $fh "\b" x $self->{lastlen};
-        undef $self->{lastlen};
+    my $ll = $self->{_lastlen};
+    if (defined $self->{_lastlen}) {
+        print { $self->{fh} } "\b" x $self->{_lastlen};
+        undef $self->{_lastlen};
     }
 
     my $p = $args{indicator};
@@ -127,10 +149,9 @@ sub update {
         ansifg("ffff00"), $bar_eta,
         "\e[0m",
     );
-    my $fh = $self->{fh};
-    print $fh $bar;
+    print { $self->{fh} } $bar;
 
-    $self->{lastlen} = ta_length($bar);
+    $self->{_lastlen} = ta_length($bar);
 }
 
 sub cleanup {
@@ -141,16 +162,20 @@ sub cleanup {
     # app, so this method is provided and will be called by e.g.
     # Perinci::CmdLine
 
-    my $ll = $self->{lastlen};
+    my $ll = $self->{_lastlen};
     return unless $ll;
-    my $fh = $self->{fh};
-    print $fh "\b" x $ll, " " x $ll, "\b" x $ll;
+    print { $self->{fh} } "\b" x $ll, " " x $ll, "\b" x $ll;
 }
 
 sub keep_delay_showing {
     my $self = shift;
 
     $self->{_last_hide_time} = time();
+}
+
+sub DESTROY {
+    my $self = shift;
+    $self->_unpatch;
 }
 
 1;
