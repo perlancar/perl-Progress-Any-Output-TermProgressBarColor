@@ -22,20 +22,20 @@ sub _patch {
     return if $ph1;
     require Monkey::Patch::Action;
     $ph1 = Monkey::Patch::Action::patch_package(
-        'Log::Any::Adapter::ScreenColoredLevel', 'hook_before_log', 'replace',
+        'Log::Any::Adapter::Screen', 'hook_before_log', 'replace',
         sub {
             $out->cleanup;
             $Progress::Any::output_data{"$out"}{force_update} = 1;
         }
-    ) if defined &{"Log::Any::Adapter::ScreenColoredLevel::hook_before_log"};
+    ) if defined &{"Log::Any::Adapter::Screen::hook_before_log"};
     $ph2 = Monkey::Patch::Action::patch_package(
-        'Log::Any::Adapter::ScreenColoredLevel', 'hook_after_log', 'replace',
+        'Log::Any::Adapter::Screen', 'hook_after_log', 'replace',
         sub {
             my ($self, $msg) = @_;
             print { $self->{_fh} } "\n" unless $msg =~ /\R\z/;
             $out->keep_delay_showing if $out->{show_delay};
         }
-    ) if defined &{"Log::Any::Adapter::ScreenColoredLevel::hook_after_log"};
+    ) if defined &{"Log::Any::Adapter::Screen::hook_after_log"};
 }
 
 sub _unpatch {
