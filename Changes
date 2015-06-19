@@ -1,5 +1,11 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.19    2015-06-19 (PERLANCAR)
+
+	- Patch Log::Any::Adapter::Screen instead of ::ScreenColoredLevel,
+	  because that's what the new Perinci::CmdLine is using.
+
+
 0.18    2015-01-28 (PERLANCAR)
 
 	- [Bugfix] Fixes so that show_delay is reset again after log is
