@@ -31,7 +31,7 @@ subtest "fh option" => sub {
 
 subtest "default (wide)" => sub {
     plan skip_all => 'Text::ANSI::NonWideUtil not available'
-        unless eval { require Text::ANSI::NonWideUtil; 1 };
+        unless eval { require Text::ANSI::WideUtil; 1 };
 
     Progress::Any::Output->set('TermProgressBarColor', wide=>1);
     my $progress = Progress::Any->get_indicator(target=>10);
