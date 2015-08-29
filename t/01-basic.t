@@ -29,4 +29,17 @@ subtest "fh option" => sub {
     like($err, qr/20%/);
 };
 
+subtest "default (wide)" => sub {
+    plan skip_all => 'Text::ANSI::NonWideUtil not available'
+        unless eval { require Text::ANSI::NonWideUtil; 1 };
+
+    Progress::Any::Output->set('TermProgressBarColor', wide=>1);
+    my $progress = Progress::Any->get_indicator(target=>10);
+    my ($out, $err, $exit) = capture {
+        $progress->update(message => "foo");
+    };
+    like($out, qr/foo/);
+    like($out, qr/30%/);
+};
+
 done_testing;

@@ -8,7 +8,6 @@ use strict;
 use warnings;
 
 use Color::ANSI::Util qw(ansifg ansibg);
-use Text::ANSI::Util qw(ta_mbtrunc ta_mbswidth ta_length);
 require Win32::Console::ANSI if $^O =~ /Win/;
 
 $|++;
@@ -68,10 +67,17 @@ sub new {
 
     $args{show_delay} = delete($args0{show_delay});
 
+    $args{wide} = delete($args0{wide});
+
     keys(%args0) and die "Unknown output parameter(s): ".
         join(", ", keys(%args0));
 
     $args{_last_hide_time} = time();
+
+    require Text::ANSI::NonWideUtil;
+    if ($args{wide}) {
+        require Text::ANSI::WideUtil;
+    }
 
     my $self = bless \%args, $class;
     $self->_patch;
@@ -142,8 +148,14 @@ sub update {
                 require String::Elide::Parts;
                 $msg = String::Elide::Parts::elide($msg, $bwidth);
             }
-            $msg = ta_mbtrunc($msg, $bwidth);
-            my $mwidth = ta_mbswidth($msg);
+            my $mwidth;
+            if ($self->{wide}) {
+                $msg = Text::ANSI::WideUtil::ta_mbtrunc($msg, $bwidth);
+                $mwidth = Text::ANSI::WideUtil::ta_mbswidth($msg);
+            } else {
+                $msg = Text::ANSI::NonWideUtil::ta_trunc($msg, $bwidth);
+                $mwidth = Text::ANSI::NonWideUtil::ta_length($msg);
+            }
             $bar_bar = ansifg("808080") . $msg . ansifg("ff8000") .
                 substr($bar_bar, $mwidth);
         }
@@ -160,7 +172,7 @@ sub update {
     );
     print { $self->{fh} } $bar;
 
-    $self->{_lastlen} = ta_length($bar);
+    $self->{_lastlen} = Text::ANSI::NonWideUtil::ta_length($bar);
 }
 
 sub cleanup {
@@ -227,9 +239,9 @@ uses the L<Progress::Any> framework and has additional features:
 
 =item * template and styles
 
-=item * wide character support
-
 =item * displaying message text in addition to bar/percentage number
+
+=item * wide character support
 
 =back
 
@@ -247,6 +259,10 @@ Progress::Any::Output->set("TermProgressBarColor", %args) >>.
 Known arguments:
 
 =over
+
+=item * wide => bool
+
+If set to 1, enable wide character support (requires L<Text::ANSI::WideUtil>.
 
 =item * width => INT
 
