@@ -1,5 +1,12 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.20    2015-08-29 (PERLANCAR)
+
+	- [Bugfix] fix dependencies, add option wide=>1 to explicitly
+	  enable wide character support and load the correct module
+	  [RT#106719].
+
+
 0.19    2015-06-19 (PERLANCAR)
 
 	- Patch Log::Any::Adapter::Screen instead of ::ScreenColoredLevel,
