@@ -74,7 +74,7 @@ sub new {
 
     $args{_last_hide_time} = time();
 
-    require Text::ANSI::NonWideUtil;
+    require Text::ANSI::Util;
     if ($args{wide}) {
         require Text::ANSI::WideUtil;
     }
@@ -153,8 +153,8 @@ sub update {
                 $msg = Text::ANSI::WideUtil::ta_mbtrunc($msg, $bwidth);
                 $mwidth = Text::ANSI::WideUtil::ta_mbswidth($msg);
             } else {
-                $msg = Text::ANSI::NonWideUtil::ta_trunc($msg, $bwidth);
-                $mwidth = Text::ANSI::NonWideUtil::ta_length($msg);
+                $msg = Text::ANSI::Util::ta_trunc($msg, $bwidth);
+                $mwidth = Text::ANSI::Util::ta_length($msg);
             }
             $bar_bar = ansifg("808080") . $msg . ansifg("ff8000") .
                 substr($bar_bar, $mwidth);
@@ -172,7 +172,7 @@ sub update {
     );
     print { $self->{fh} } $bar;
 
-    $self->{_lastlen} = Text::ANSI::NonWideUtil::ta_length($bar);
+    $self->{_lastlen} = Text::ANSI::Util::ta_length($bar);
 }
 
 sub cleanup {
