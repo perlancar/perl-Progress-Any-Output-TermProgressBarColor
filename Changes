@@ -1,5 +1,12 @@
 Revision history for Progress-Any-Output-TermProgressBarColor
 
+0.22    2016-03-11 (PERLANCAR)
+
+	- No functional changes.
+
+	- Adjust to Text::ANSI::Util 0.22 (::NonWideUtil removed).
+
+
 0.21    2015-08-29 (PERLANCAR)
 
 	- Typo.
