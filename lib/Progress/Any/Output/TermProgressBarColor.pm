@@ -23,6 +23,8 @@ sub _patch {
     $ph1 = Monkey::Patch::Action::patch_package(
         'Log::Any::Adapter::Screen', 'hook_before_log', 'replace',
         sub {
+            # we install a hook to clean up progress indicator first before we
+            # print log message to the screen.
             $out->cleanup;
             $Progress::Any::output_data{"$out"}{force_update} = 1;
         }
