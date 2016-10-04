@@ -320,7 +320,7 @@ again before showing.
 
 =head2 COLOR => BOOL
 
-Can be used to force or disable color.
+Can be used to force or disable color. See L<Color::ANSI::Util>.
 
 =head2 COLOR_DEPTH => INT
 
