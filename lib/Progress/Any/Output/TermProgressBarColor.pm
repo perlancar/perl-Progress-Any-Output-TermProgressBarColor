@@ -20,23 +20,47 @@ sub _patch {
 
     return if $ph1;
     require Monkey::Patch::Action;
-    $ph1 = Monkey::Patch::Action::patch_package(
-        'Log::Any::Adapter::Screen', 'hook_before_log', 'replace',
-        sub {
-            # we install a hook to clean up progress indicator first before we
-            # print log message to the screen.
-            $out->cleanup;
-            $Progress::Any::output_data{"$out"}{force_update} = 1;
-        }
-    ) if defined &{"Log::Any::Adapter::Screen::hook_before_log"};
-    $ph2 = Monkey::Patch::Action::patch_package(
-        'Log::Any::Adapter::Screen', 'hook_after_log', 'replace',
-        sub {
-            my ($self, $msg) = @_;
-            print { $self->{_fh} } "\n" unless $msg =~ /\R\z/;
-            $out->keep_delay_showing if $out->{show_delay};
-        }
-    ) if defined &{"Log::Any::Adapter::Screen::hook_after_log"};
+    if (defined &{"Log::Any::Adapter::Screen::hook_before_log"}) {
+        $ph1 = Monkey::Patch::Action::patch_package(
+            'Log::Any::Adapter::Screen', 'hook_before_log', 'replace',
+            sub {
+                # we install a hook to clean up progress indicator first before
+                # we print log message to the screen.
+                $out->cleanup;
+                $Progress::Any::output_data{"$out"}{force_update} = 1;
+            }
+        );
+    } elsif (defined  &{"Log::ger::Output::Screen::hook_before_log"}) {
+        $ph1 = Monkey::Patch::Action::patch_package(
+            'Log::ger::Output::Screen', 'hook_before_log', 'replace',
+            sub {
+                # we install a hook to clean up progress indicator first before
+                # we print log message to the screen.
+                $out->cleanup;
+                $Progress::Any::output_data{"$out"}{force_update} = 1;
+            }
+        );
+    }
+
+    if (defined &{"Log::Any::Adapter::Screen::hook_after_log"}) {
+        $ph2 = Monkey::Patch::Action::patch_package(
+            'Log::Any::Adapter::Screen', 'hook_after_log', 'replace',
+            sub {
+                my ($self, $msg) = @_;
+                print { $self->{_fh} } "\n" unless $msg =~ /\R\z/;
+                $out->keep_delay_showing if $out->{show_delay};
+            }
+        );
+    } elsif (defined &{"Log::ger::Output::Screen::hook_after_log"}) {
+        $ph2 = Monkey::Patch::Action::patch_package(
+            'Log::ger::Output::Screen', 'hook_after_log', 'replace',
+            sub {
+                my ($ctx, $msg) = @_;
+                print { $ctx->{_fh} } "\n" unless $msg =~ /\R\z/;
+                $out->keep_delay_showing if $out->{show_delay};
+            }
+        );
+    }
 }
 
 sub _unpatch {
