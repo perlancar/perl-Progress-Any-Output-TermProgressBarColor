@@ -11,7 +11,7 @@ use Progress::Any::Output;
 
 subtest default => sub {
     Progress::Any::Output->set('TermProgressBarColor');
-    my $progress = Progress::Any->get_indicator(target=>10);
+    my $progress = Progress::Any->get_indicator(task=>'', target=>10);
     my ($out, $err, $exit) = capture {
         $progress->update(message => "foo");
     };
@@ -21,7 +21,7 @@ subtest default => sub {
 
 subtest "fh option" => sub {
     Progress::Any::Output->set('TermProgressBarColor', fh=>\*STDERR);
-    my $progress = Progress::Any->get_indicator(target=>10);
+    my $progress = Progress::Any->get_indicator(task=>'', target=>10);
     my ($out, $err, $exit) = capture {
         $progress->update(message => "foo");
     };
@@ -34,7 +34,7 @@ subtest "default (wide)" => sub {
         unless eval { require Text::ANSI::WideUtil; 1 };
 
     Progress::Any::Output->set('TermProgressBarColor', wide=>1);
-    my $progress = Progress::Any->get_indicator(target=>10);
+    my $progress = Progress::Any->get_indicator(task=>'', target=>10);
     my ($out, $err, $exit) = capture {
         $progress->update(message => "foo");
     };
