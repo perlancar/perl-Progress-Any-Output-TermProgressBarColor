@@ -130,9 +130,8 @@ sub update {
     my $p = $args{indicator};
     my $tottgt = $p->total_target;
     my $totpos = $p->total_pos;
-    my $is_complete = $p->{state} eq 'finished' ||
-        defined($tottgt) && $tottgt > 0 && $totpos == $tottgt;
-    if ($is_complete) {
+    my $is_finished = $p->{state} eq 'finished';
+    if ($is_finished) {
         if ($ll) {
             my $fh = $self->{fh};
             print $fh " " x $ll, "\b" x $ll;
@@ -342,15 +341,15 @@ again before showing.
 
 =head1 ENVIRONMENT
 
-=head2 COLOR => BOOL
+=head2 COLOR => bool
 
 Can be used to force or disable color. See L<Color::ANSI::Util>.
 
-=head2 COLOR_DEPTH => INT
+=head2 COLOR_DEPTH => int
 
 Can be used to override color depth detection. See L<Color::ANSI::Util>.
 
-=head2 COLUMNS => INT
+=head2 COLUMNS => int
 
 Can be used to override terminal width detection.
 
