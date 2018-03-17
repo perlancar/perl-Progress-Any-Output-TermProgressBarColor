@@ -2,6 +2,9 @@
 
 	- Implement template.
 
+        - [Incompatible change] [ux] Don't clear progress bar on 100%, clear on
+          finish().
+
 
 0.23    2017-06-21 (PERLANCAR)
 
