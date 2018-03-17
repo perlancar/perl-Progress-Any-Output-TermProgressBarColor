@@ -1,13 +1,13 @@
 #!perl
 
-use 5.010;
+use 5.010001;
 use strict;
 use warnings;
+use Test::More 0.98;
 
 use Capture::Tiny qw(capture);
 use Progress::Any;
 use Progress::Any::Output;
-use Test::More 0.98;
 
 subtest default => sub {
     Progress::Any::Output->set('TermProgressBarColor');

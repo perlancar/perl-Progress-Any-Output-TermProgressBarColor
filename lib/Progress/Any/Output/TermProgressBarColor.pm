@@ -68,6 +68,45 @@ sub _unpatch {
     undef $ph2;
 }
 
+sub _template_length {
+    require Progress::Any; # for $template_regex
+
+    my ($self, $template) = @_;
+
+    my $template_length = length($template);
+
+    while ($template =~ /$Progress::Any::template_regex/g) {
+        my ($all, $width, $dot, $prec, $conv) =
+            ($1, $2, $3, $4, $5);
+
+        if (defined $template_length) {
+
+            if ($conv eq '%') {
+                $width //= 1;
+            } elsif ($conv eq 'b' || $conv eq 'B') {
+                $width //= $self->{_default_b_width};
+            } elsif ($conv eq 'p') {
+                $width //= 3;
+            } elsif ($conv eq 'e') {
+                $width //= -8;
+            } elsif ($conv eq 'r') {
+                $width //= -8;
+            } elsif ($conv eq 'R') {
+                $width //= -(8 + 1 + 7);
+            }
+
+            if (defined $width) {
+                $template_length += abs($width) - length($all);
+            } else {
+                $template_length = undef;
+            }
+
+        }
+    }
+
+    $template_length;
+}
+
 sub new {
     my ($class, %args0) = @_;
 
@@ -95,6 +134,9 @@ sub new {
 
     $args{wide} = delete($args0{wide});
 
+    $args{template} = delete($args0{template}) //
+        '<color ffff00>%p%%</color> <color 808000>[</color>%B<color 808000>]</color><color ffff00>%R</color>';
+
     keys(%args0) and die "Unknown output parameter(s): ".
         join(", ", keys(%args0));
 
@@ -106,8 +148,71 @@ sub new {
     }
 
     my $self = bless \%args, $class;
+
+    # determine the default width for %b and %B
+    {
+        $self->{_default_b_width} = 0;
+        (my $template = $args{template}) =~ s!<color \w+>|</color>!!g;
+        my $len = $self->_template_length($template) // 16;
+        $self->{_default_b_width} = $args{width} - $len;
+    }
+
     $self->_patch;
     $self;
+}
+
+sub _handle_unknown_conversion {
+    my %args = @_;
+
+    my $conv = $args{conv};
+    return () unless $conv eq 'b' || $conv eq 'B';
+
+    my $p = $args{indicator};
+    my $self = $args{self};
+
+    my $tottgt = $p->total_target;
+    my $totpos = $p->total_pos;
+
+    my $bar_bar = '';
+    my $bwidth = abs($args{width} // $self->{_default_b_width});
+
+    if ($tottgt) {
+        my $bfilled = int($totpos / $tottgt * $bwidth);
+        $bfilled = $bwidth if $bfilled > $bwidth;
+        $bar_bar = ("=" x $bfilled) . (" " x ($bwidth-$bfilled));
+    } else {
+        # display 15% width of bar just moving right
+        my $bfilled = int(0.15 * $bwidth);
+        $bfilled = 1 if $bfilled < 1;
+        $self->{_x}++;
+        if ($self->{_x} > $bwidth-$bfilled) {
+            $self->{_x} = 0;
+        }
+        $bar_bar = (" " x $self->{_x}) . ("=" x $bfilled) .
+            (" " x ($bwidth-$self->{_x}-$bfilled));
+    }
+
+    my $msg = $args{args}{message};
+    if ($conv eq 'B' && defined $msg) {
+        if ($msg =~ m!</elspan!) {
+            require String::Elide::Parts;
+            $msg = String::Elide::Parts::elide($msg, $bwidth);
+        }
+        my $mwidth;
+        if ($self->{wide}) {
+            $msg = Text::ANSI::WideUtil::ta_mbtrunc($msg, $bwidth);
+            $mwidth = Text::ANSI::WideUtil::ta_mbswidth($msg);
+        } else {
+            $msg = Text::ANSI::Util::ta_trunc($msg, $bwidth);
+            $mwidth = Text::ANSI::Util::ta_length($msg);
+        }
+        $bar_bar = ansifg("808080") . $msg . ansifg("ff8000") .
+            substr($bar_bar, $mwidth);
+    }
+
+    $bar_bar = ansifg("ff8000") . $bar_bar;
+
+    return ("%s", $bar_bar);
 }
 
 sub update {
@@ -128,8 +233,6 @@ sub update {
     }
 
     my $p = $args{indicator};
-    my $tottgt = $p->total_target;
-    my $totpos = $p->total_pos;
     my $is_finished = $p->{state} eq 'finished';
     if ($is_finished) {
         if ($ll) {
@@ -140,61 +243,22 @@ sub update {
         return;
     }
 
-    # XXX follow 'template'
-    my $bar;
-    my $bar_pct = $p->fill_template("%p%% ", %args);
-
-    my $bar_eta = $p->fill_template("%R", %args);
-
-    my $bar_bar = "";
-    my $bwidth = $self->{width} - length($bar_pct) - length($bar_eta) - 2;
-    if ($bwidth > 0) {
-        if ($tottgt) {
-            my $bfilled = int($totpos / $tottgt * $bwidth);
-            $bfilled = $bwidth if $bfilled > $bwidth;
-            $bar_bar = ("=" x $bfilled) . (" " x ($bwidth-$bfilled));
-
-            my $message = $args{message};
-        } else {
-            # display 15% width of bar just moving right
-            my $bfilled = int(0.15 * $bwidth);
-            $bfilled = 1 if $bfilled < 1;
-            $self->{_x}++;
-            if ($self->{_x} > $bwidth-$bfilled) {
-                $self->{_x} = 0;
-            }
-            $bar_bar = (" " x $self->{_x}) . ("=" x $bfilled) .
-                (" " x ($bwidth-$self->{_x}-$bfilled));
-        }
-
-        my $msg = $args{message};
-        if (defined $msg) {
-            if ($msg =~ m!</elspan!) {
-                require String::Elide::Parts;
-                $msg = String::Elide::Parts::elide($msg, $bwidth);
-            }
-            my $mwidth;
-            if ($self->{wide}) {
-                $msg = Text::ANSI::WideUtil::ta_mbtrunc($msg, $bwidth);
-                $mwidth = Text::ANSI::WideUtil::ta_mbswidth($msg);
-            } else {
-                $msg = Text::ANSI::Util::ta_trunc($msg, $bwidth);
-                $mwidth = Text::ANSI::Util::ta_length($msg);
-            }
-            $bar_bar = ansifg("808080") . $msg . ansifg("ff8000") .
-                substr($bar_bar, $mwidth);
-        }
-
-        $bar_bar = ansifg("ff8000") . $bar_bar;
-    }
-
-    $bar = join(
-        "",
-        ansifg("ffff00"), $bar_pct,
-        "[$bar_bar]",
-        ansifg("ffff00"), $bar_eta,
-        "\e[0m",
+    my $bar = $p->fill_template(
+        {
+            template => $self->{template},
+            handle_unknown_conversion => sub {
+                _handle_unknown_conversion(
+                    self => $self,
+                    @_,
+                );
+            },
+        },
+        %args,
     );
+
+    $bar = "$bar\e[0m";
+    $bar =~ s!<color (\w+)>|<(/)color>!$1 ? ansifg($1) : "\e[0m"!eg;
+
     print { $self->{fh} } $bar;
 
     $self->{_lastlen} = Text::ANSI::Util::ta_length($bar);
@@ -243,8 +307,8 @@ sub DESTROY {
 
 =head1 DESCRIPTION
 
-B<THIS IS AN EARLY RELEASE, SOME THINGS ARE NOT YET IMPLEMENTED E.G. TEMPLATE,
-STYLES, COLOR THEMES>.
+B<THIS IS AN EARLY RELEASE, SOME THINGS ARE NOT YET IMPLEMENTED E.G. STYLES,
+COLOR THEMES>.
 
 Sample screenshots:
 
@@ -308,14 +372,18 @@ Not yet implemented.
 Choose style. To see what styles are available, use C<list_styles()>. Styles
 determine the characters used for drawing the bar, alignment, etc.
 
-=item * template => STR (default: '%p [%B]%e')
-
-Not yet implemented.
+=item * template => str
 
 See B<fill_template> in Progress::Any's documentation. Aside from template
 strings supported by Progress::Any, this output recognizes these additional
-strings: C<%b> to display the progress bar (using the rest of the available
-width), C<%B> to display the progress bar as well as the message inside it.
+strings: C<%b> to display the progress bar (with width using the rest of the
+available width), C<%B> to display the progress bar as well as the message
+inside it. You can also enclose parts of text with "<color RGB>" ... "</color>"
+to give color.
+
+The default template is:
+
+ <color ffff00>%p</color> <color 808000>[</color>%B<color 808000>]</color><color ffff00>%e</color>
 
 =item * fh => handle (default: \*STDOUT)
 
