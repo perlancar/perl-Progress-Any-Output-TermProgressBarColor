@@ -256,7 +256,6 @@ sub update {
         %args,
     );
 
-    $bar = "$bar\e[0m";
     $bar =~ s!<color (\w+)>|<(/)color>!$1 ? ansifg($1) : "\e[0m"!eg;
 
     print { $self->{fh} } $bar;
