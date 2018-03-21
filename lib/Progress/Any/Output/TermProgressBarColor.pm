@@ -218,6 +218,8 @@ sub _handle_unknown_conversion {
 sub update {
     my ($self, %args) = @_;
 
+    return unless $ENV{PROGRESS_TERM_BAR} // $ENV{PROGRESS} // (-t STDOUT);
+
     my $now = time();
 
     # if there is show_delay, don't display until we've surpassed it
@@ -408,17 +410,31 @@ again before showing.
 
 =head1 ENVIRONMENT
 
-=head2 COLOR => bool
+=head2 COLOR
 
-Can be used to force or disable color. See L<Color::ANSI::Util>.
+Bool. Can be used to force or disable color. See L<Color::ANSI::Util>.
 
-=head2 COLOR_DEPTH => int
+=head2 COLOR_DEPTH
 
-Can be used to override color depth detection. See L<Color::ANSI::Util>.
+Integer. Can be used to override color depth detection. See
+L<Color::ANSI::Util>.
 
-=head2 COLUMNS => int
+=head2 COLUMNS
 
-Can be used to override terminal width detection.
+Integer. Can be used to override terminal width detection.
+
+=head2 PROGRESS_TERM_BAR
+
+Bool. Forces disabling or enabling progress output (just for this output).
+
+In the absence of PROGRESS_TERM_MESSAGE and PROGRESS, will default to using C<<
+(-t STDOUT) >> (which means only display progress output when in interactive
+mode).
+
+=head2 PROGRESS
+
+Bool. Forces disabling or enabling progress output (for all outputs).
+
 
 
 =head1 SEE ALSO
