@@ -1,3 +1,9 @@
+0.243   2018-03-21 (PERLANCAR)
+
+	- [Bugfix] Check -t against the actual handle used, not hardcoded
+	  STDOUT or STDERR.
+
+
 0.242   2018-03-21 (PERLANCAR)
 
 	- [Incompatible change] [ux] Default output to STDERR instead of
