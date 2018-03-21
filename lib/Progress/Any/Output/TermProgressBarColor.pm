@@ -218,7 +218,7 @@ sub _handle_unknown_conversion {
 sub update {
     my ($self, %args) = @_;
 
-    return unless $ENV{PROGRESS_TERM_BAR} // $ENV{PROGRESS} // (-t STDERR);
+    return unless $ENV{PROGRESS_TERM_BAR} // $ENV{PROGRESS} // (-t $self->{fh});
 
     my $now = time();
 
@@ -428,9 +428,8 @@ Integer. Can be used to override terminal width detection.
 
 Bool. Forces disabling or enabling progress output (just for this output).
 
-In the absence of PROGRESS_TERM_MESSAGE and PROGRESS, will default to using C<<
-(-t STDOUT) >> (which means only display progress output when in interactive
-mode).
+In the absence of PROGRESS_TERM_MESSAGE and PROGRESS, will default to 1 if
+filehandle is detected as interactive (using C<-t>).
 
 =head2 PROGRESS
 
