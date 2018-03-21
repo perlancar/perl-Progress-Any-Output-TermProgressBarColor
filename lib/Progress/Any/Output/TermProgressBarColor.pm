@@ -128,7 +128,7 @@ sub new {
     }
 
     $args{fh} = delete($args0{fh});
-    $args{fh} //= \*STDOUT;
+    $args{fh} //= \*STDERR;
 
     $args{show_delay} = delete($args0{show_delay});
 
@@ -386,9 +386,10 @@ The default template is:
 
  <color ffff00>%p</color> <color 808000>[</color>%B<color 808000>]</color><color ffff00>%e</color>
 
-=item * fh => handle (default: \*STDOUT)
+=item * fh => handle (default: \*STDERR)
 
-Instead of the default STDOUT, you can direct the output to another filehandle.
+Instead of the default STDERR, you can direct the output to another filehandle
+e.g. STDOUT.
 
 =item * show_delay => int
 
