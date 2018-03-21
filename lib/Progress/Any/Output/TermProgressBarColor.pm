@@ -218,7 +218,7 @@ sub _handle_unknown_conversion {
 sub update {
     my ($self, %args) = @_;
 
-    return unless $ENV{PROGRESS_TERM_BAR} // $ENV{PROGRESS} // (-t STDOUT);
+    return unless $ENV{PROGRESS_TERM_BAR} // $ENV{PROGRESS} // (-t STDERR);
 
     my $now = time();
 
