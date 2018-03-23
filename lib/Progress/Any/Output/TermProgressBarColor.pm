@@ -375,12 +375,11 @@ determine the characters used for drawing the bar, alignment, etc.
 
 =item * template => str
 
-See B<fill_template> in Progress::Any's documentation. Aside from template
-strings supported by Progress::Any, this output recognizes these additional
-strings: C<%b> to display the progress bar (with width using the rest of the
-available width), C<%B> to display the progress bar as well as the message
-inside it. You can also enclose parts of text with "<color RGB>" ... "</color>"
-to give color.
+See B<fill_template> in Progress::Any's documentation. Aside from conversions
+supported by Progress::Any, this output recognizes these additional conversions:
+C<%b> to display the progress bar (with width using the rest of the available
+width), C<%B> to display the progress bar as well as the message inside it. You
+can also enclose parts of text with "<color RGB>" ... "</color>" to give color.
 
 The default template is:
 
