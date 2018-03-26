@@ -137,6 +137,8 @@ sub new {
 
     $args{show_delay} = delete($args0{show_delay});
 
+    $args{freq} = delete($args0{freq});
+
     $args{wide} = delete($args0{wide});
 
     $args{template} = delete($args0{template}) //
@@ -353,6 +355,24 @@ Known arguments:
 
 =over
 
+=item * freq => num
+
+Limit the frequency of output updating. 0 means no frequency limiting (update
+output after every C<update()>).
+
+A positive number means to update output when there has been that amount of
+difference in position since last C<update()>. For example, if C<freq> is 10 and
+the last C<update()> was at position 5, then the next output update will be when
+position is at least 15.
+
+A negative number means to update output when time has passed that amount of
+absolute value (in seconds). For example, if C<freq> is -3 and the last
+C<update()> was 1 second ago, then the next output update will not be until the
+next two seconds has passed.
+
+By default undef, in which case Progress::Any will use the default -0.5 (at most
+once every 0.5 seconds).
+
 =item * wide => bool
 
 If set to 1, enable wide character support (requires L<Text::ANSI::WideUtil>.
@@ -437,6 +457,13 @@ filehandle is detected as interactive (using C<-t>).
 
 Bool. Forces disabling or enabling progress output (for all outputs).
 
+
+=head1 FAQ
+
+=head2 How to update progress bar output more often?
+
+Set C<freq> to e.g. -0.1 or -0.05. The default C<freq>, when unset, is -0.5
+which means to update output at most once every 0.5 second.
 
 
 =head1 SEE ALSO
