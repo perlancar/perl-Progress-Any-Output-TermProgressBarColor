@@ -47,6 +47,8 @@ sub _patch {
             'Log::Any::Adapter::Screen', 'hook_after_log', 'replace',
             sub {
                 my ($self, $msg) = @_;
+                # make sure we print a newline after logging so progress bar
+                # starts at column 1
                 print { $self->{_fh} } "\n" unless $msg =~ /\R\z/;
                 $out->keep_delay_showing if $out->{show_delay};
             }
@@ -56,6 +58,8 @@ sub _patch {
             'Log::ger::Output::Screen', 'hook_after_log', 'replace',
             sub {
                 my ($ctx, $msg) = @_;
+                # make sure we print a newline after logging so progress bar
+                # starts at column 1
                 print { $ctx->{_fh} } "\n" unless $msg =~ /\R\z/;
                 $out->keep_delay_showing if $out->{show_delay};
             }
@@ -70,6 +74,7 @@ sub _unpatch {
 
 sub _template_length {
     require Progress::Any; # for $template_regex
+    no warnings 'once'; # $Progress::Any::template_regex
 
     my ($self, $template) = @_;
 
@@ -157,7 +162,9 @@ sub new {
         $self->{_default_b_width} = $args{width} - $len;
     }
 
-    $self->_patch;
+    # render color in template
+    ($self->{_template} = $self->{template}) =~ s!<color (\w+)>|<(/)color>!$1 ? ansifg($1) : "\e[0m"!eg;
+
     $self;
 }
 
@@ -206,11 +213,8 @@ sub _handle_unknown_conversion {
             $msg = Text::ANSI::Util::ta_trunc($msg, $bwidth);
             $mwidth = Text::ANSI::Util::ta_length($msg);
         }
-        $bar_bar = ansifg("808080") . $msg . ansifg("ff8000") .
-            substr($bar_bar, $mwidth);
+        $bar_bar = $msg . substr($bar_bar, $mwidth);
     }
-
-    $bar_bar = ansifg("ff8000") . $bar_bar;
 
     return ("%s", $bar_bar);
 }
@@ -227,10 +231,12 @@ sub update {
         return if $now - $self->{show_delay} < $self->{_last_hide_time};
     }
 
+    $self->_patch;
+
     # "erase" previous display
     my $ll = $self->{_lastlen};
-    if (defined $self->{_lastlen}) {
-        print { $self->{fh} } "\b" x $self->{_lastlen};
+    if (defined $ll) {
+        print { $self->{fh} } (" " x $ll), ("\b" x $ll);
         undef $self->{_lastlen};
     }
 
@@ -238,8 +244,7 @@ sub update {
     my $is_finished = $p->{state} eq 'finished';
     if ($is_finished) {
         if ($ll) {
-            my $fh = $self->{fh};
-            print $fh " " x $ll, "\b" x $ll;
+            print { $self->{fh} } (" " x $ll), ("\b" x $ll);
             $self->{_last_hide_time} = $now;
         }
         return;
@@ -247,7 +252,7 @@ sub update {
 
     my $bar = $p->fill_template(
         {
-            template => $self->{template},
+            template => $self->{_template},
             handle_unknown_conversion => sub {
                 _handle_unknown_conversion(
                     self => $self,
@@ -258,11 +263,9 @@ sub update {
         %args,
     );
 
-    $bar =~ s!<color (\w+)>|<(/)color>!$1 ? ansifg($1) : "\e[0m"!eg;
-
-    print { $self->{fh} } $bar;
-
-    $self->{_lastlen} = Text::ANSI::Util::ta_length($bar);
+    my $len = Text::ANSI::Util::ta_length($bar);
+    print { $self->{fh} } $bar, ("\b" x $len);
+    $self->{_lastlen} = $len;
 }
 
 sub cleanup {
@@ -275,7 +278,7 @@ sub cleanup {
 
     my $ll = $self->{_lastlen};
     return unless $ll;
-    print { $self->{fh} } "\b" x $ll, " " x $ll, "\b" x $ll;
+    print { $self->{fh} } " " x $ll, "\b" x $ll;
 }
 
 sub keep_delay_showing {
