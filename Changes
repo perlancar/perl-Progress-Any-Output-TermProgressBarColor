@@ -1,3 +1,8 @@
+0.245   2018-03-27 (PERLANCAR)
+
+	- [ux] Redisplay progress bar after printing log message.
+
+
 0.244   2018-03-26 (PERLANCAR)
 
         - Add option: freq.
