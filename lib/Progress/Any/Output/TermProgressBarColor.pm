@@ -26,7 +26,7 @@ sub _patch {
             sub {
                 # we install a hook to clean up progress indicator first before
                 # we print log message to the screen.
-                $out->cleanup;
+                $out->cleanup(1);
                 $Progress::Any::output_data{"$out"}{force_update} = 1;
             }
         );
@@ -36,7 +36,7 @@ sub _patch {
             sub {
                 # we install a hook to clean up progress indicator first before
                 # we print log message to the screen.
-                $out->cleanup;
+                $out->cleanup(1);
                 $Progress::Any::output_data{"$out"}{force_update} = 1;
             }
         );
@@ -50,7 +50,12 @@ sub _patch {
                 # make sure we print a newline after logging so progress bar
                 # starts at column 1
                 print { $self->{_fh} } "\n" unless $msg =~ /\R\z/;
+
+                # reset show_delay because we have displayed something
                 $out->keep_delay_showing if $out->{show_delay};
+
+                # redisplay progress bar if were cleaned up
+                print { $self->{_fh} } $out->{_bar} if $out->{_bar};
             }
         );
     } elsif (defined &{"Log::ger::Output::Screen::hook_after_log"}) {
@@ -61,7 +66,12 @@ sub _patch {
                 # make sure we print a newline after logging so progress bar
                 # starts at column 1
                 print { $ctx->{_fh} } "\n" unless $msg =~ /\R\z/;
+
+                # reset show_delay because we have displayed something
                 $out->keep_delay_showing if $out->{show_delay};
+
+                # redisplay progress bar if were cleaned up
+                print { $ctx->{_fh} } $out->{_bar} if $out->{_bar};
             }
         );
     }
@@ -235,18 +245,12 @@ sub update {
 
     $self->_patch;
 
-    # "erase" previous display
-    my $ll = $self->{_lastlen};
-    if (defined $ll) {
-        print { $self->{fh} } (" " x $ll), ("\b" x $ll);
-        undef $self->{_lastlen};
-    }
+    $self->cleanup;
 
     my $p = $args{indicator};
     my $is_finished = $p->{state} eq 'finished';
     if ($is_finished) {
-        if ($ll) {
-            print { $self->{fh} } (" " x $ll), ("\b" x $ll);
+        if ($self->{_lastlen}) {
             $self->{_last_hide_time} = $now;
         }
         return;
@@ -266,12 +270,13 @@ sub update {
     );
 
     my $len = Text::ANSI::Util::ta_length($bar);
-    print { $self->{fh} } $bar, ("\b" x $len);
+    $self->{_bar}   = $bar . ("\b" x $len);
+    print { $self->{fh} } $self->{_bar};
     $self->{_lastlen} = $len;
 }
 
 sub cleanup {
-    my ($self) = @_;
+    my ($self, $dont_reset_lastlen) = @_;
 
     # sometimes (e.g. when a subtask's target is undefined) we don't get
     # state=finished at the end. but we need to cleanup anyway at the end of
@@ -281,6 +286,7 @@ sub cleanup {
     my $ll = $self->{_lastlen};
     return unless $ll;
     print { $self->{fh} } " " x $ll, "\b" x $ll;
+    undef $self->{_lastlen} unless $dont_reset_lastlen;
 }
 
 sub keep_delay_showing {
