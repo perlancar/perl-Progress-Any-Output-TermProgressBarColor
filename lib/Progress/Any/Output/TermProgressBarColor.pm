@@ -439,6 +439,11 @@ again before showing.
 
 =head1 ENVIRONMENT
 
+=head2 NO_COLOR
+
+Bool. Can be used to disable color. Consulted before L<NO_COLOR>. See
+L<Color::ANSI::Util>.
+
 =head2 COLOR
 
 Bool. Can be used to force or disable color. See L<Color::ANSI::Util>.
