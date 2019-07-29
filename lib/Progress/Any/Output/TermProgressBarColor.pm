@@ -133,7 +133,7 @@ sub new {
         if ($ENV{COLUMNS}) {
             $cols = $ENV{COLUMNS};
         } elsif (eval { require Term::Size; 1 }) {
-            ($cols, $rows) = Term::Size::chars();
+            ($cols, $rows) = Term::Size::chars(*STDOUT{IO});
         } else {
             $cols = 80;
         }
