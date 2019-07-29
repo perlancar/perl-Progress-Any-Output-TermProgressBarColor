@@ -1,3 +1,9 @@
+0.246   2019-07-30  Released-By: PERLANCAR; Urgency: medium
+
+	- [bugfix] Didn't use Term::Size::chars() correctly resulting in
+	  undefined width.
+
+
 0.245   2018-03-27  Released-By: PERLANCAR
 
 	- [ux] Redisplay progress bar after printing log message.
