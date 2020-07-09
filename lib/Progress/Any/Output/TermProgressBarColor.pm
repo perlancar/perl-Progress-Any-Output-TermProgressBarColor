@@ -1,6 +1,8 @@
 package Progress::Any::Output::TermProgressBarColor;
 
+# AUTHORITY
 # DATE
+# DIST
 # VERSION
 
 use 5.010001;
@@ -231,6 +233,9 @@ sub _handle_unknown_conversion {
     return ("%s", $bar_bar);
 }
 
+# to avoid multiple patching in the same indicator update()
+my $prev_update_id;
+
 sub update {
     my ($self, %args) = @_;
 
@@ -243,7 +248,8 @@ sub update {
         return if $now - $self->{show_delay} < $self->{_last_hide_time};
     }
 
-    $self->_patch;
+    $self->_patch unless $args{_update_id} && $prev_update_id && $args{_update_id} eq $prev_update_id;
+    $prev_update_id = $args{_update_id};
 
     $self->cleanup;
 
