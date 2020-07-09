@@ -136,9 +136,8 @@ sub new {
             $cols = $ENV{COLUMNS};
         } elsif (eval { require Term::Size; 1 }) {
             ($cols, $rows) = Term::Size::chars(*STDOUT{IO});
-        } else {
-            $cols = 80;
         }
+        $cols //= 80;
         # on windows if we print at rightmost column, cursor will move to the
         # next line, so we try to avoid that
         $args{width} = $^O =~ /Win/ ? $cols-1 : $cols;
@@ -152,6 +151,9 @@ sub new {
     $args{freq} = delete($args0{freq});
 
     $args{wide} = delete($args0{wide});
+
+    $args{rownum} = delete($args0{rownum});
+    $args{rownum} //= 0;
 
     $args{template} = delete($args0{template}) //
         '<color ffff00>%p%%</color> <color 808000>[</color>%B<color 808000>]</color><color ffff00>%R</color>';
@@ -276,7 +278,13 @@ sub update {
     );
 
     my $len = Text::ANSI::Util::ta_length($bar);
-    $self->{_bar}   = $bar . ("\b" x $len);
+    $self->{_bar} = join(
+        "",
+        "\n" x $self->{rownum},
+        $bar,
+        ("\b" x $len),
+        $self->{rownum} > 0 ? "\e[$self->{rownum}A" : "", # up N lines
+    );
     print { $self->{fh} } $self->{_bar};
     $self->{_lastlen} = $len;
 }
@@ -291,7 +299,14 @@ sub cleanup {
 
     my $ll = $self->{_lastlen};
     return unless $ll;
-    print { $self->{fh} } " " x $ll, "\b" x $ll;
+    my $clean_str = join(
+        "",
+        "\n" x $self->{rownum},
+        " " x $ll,
+        "\b" x $ll,
+        $self->{rownum} > 0 ? "\e[$self->{rownum}A" : "", # up N lines
+    );
+    print { $self->{fh} } $clean_str;
     undef $self->{_lastlen} unless $dont_reset_lastlen;
 }
 
@@ -431,6 +446,11 @@ If set, will delay showing the progress bar until the specified number of
 seconds. This can be used to create, e.g. a CLI application that is relatively
 not chatty but will display progress after several seconds of seeming inactivity
 to indicate users that the process is still going on.
+
+=item * rownum => uint
+
+Default 0. Can be set to put the progress bar at certain rownum. This can be
+used to display several progress bars together.
 
 =back
 
