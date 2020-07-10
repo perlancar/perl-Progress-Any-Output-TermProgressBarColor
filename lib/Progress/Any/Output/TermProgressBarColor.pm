@@ -14,18 +14,17 @@ require Win32::Console::ANSI if $^O =~ /Win/;
 
 $|++;
 
-# patch handle
-my ($ph1, $ph2);
-
 sub _patch {
     my $out = shift;
 
-    return if $ph1;
+    return if $out->{patch_handle1};
+
     require Monkey::Patch::Action;
     if (defined &{"Log::Any::Adapter::Screen::hook_before_log"}) {
-        $ph1 = Monkey::Patch::Action::patch_package(
+        $out->{patch_handle1} = Monkey::Patch::Action::patch_package(
             'Log::Any::Adapter::Screen', 'hook_before_log', 'replace',
             sub {
+                use Time::HiRes qw(time); open my $fh, ">>", "/tmp/logany.log"; print $fh time(), " hook_before_log\n";
                 # we install a hook to clean up progress indicator first before
                 # we print log message to the screen.
                 $out->cleanup(1);
@@ -33,7 +32,7 @@ sub _patch {
             }
         );
     } elsif (defined  &{"Log::ger::Output::Screen::hook_before_log"}) {
-        $ph1 = Monkey::Patch::Action::patch_package(
+        $out->{patch_handle1} = Monkey::Patch::Action::patch_package(
             'Log::ger::Output::Screen', 'hook_before_log', 'replace',
             sub {
                 # we install a hook to clean up progress indicator first before
@@ -45,10 +44,13 @@ sub _patch {
     }
 
     if (defined &{"Log::Any::Adapter::Screen::hook_after_log"}) {
-        $ph2 = Monkey::Patch::Action::patch_package(
+        $out->{patch_handle2} = Monkey::Patch::Action::patch_package(
             'Log::Any::Adapter::Screen', 'hook_after_log', 'replace',
             sub {
                 my ($self, $msg) = @_;
+
+                use Time::HiRes qw(time); open my $fh, ">>", "/tmp/logany.log"; print $fh time(), " hook_after_log msg=<$msg>\n";
+
                 # make sure we print a newline after logging so progress bar
                 # starts at column 1
                 print { $self->{_fh} } "\n" unless $msg =~ /\R\z/;
@@ -61,7 +63,7 @@ sub _patch {
             }
         );
     } elsif (defined &{"Log::ger::Output::Screen::hook_after_log"}) {
-        $ph2 = Monkey::Patch::Action::patch_package(
+        $out->{patch_handle2} = Monkey::Patch::Action::patch_package(
             'Log::ger::Output::Screen', 'hook_after_log', 'replace',
             sub {
                 my ($ctx, $msg) = @_;
@@ -80,8 +82,9 @@ sub _patch {
 }
 
 sub _unpatch {
-    undef $ph1;
-    undef $ph2;
+    my $self = shift;
+    undef $self->{patch_handle1};
+    undef $self->{patch_handle2};
 }
 
 sub _template_length {
@@ -235,9 +238,6 @@ sub _handle_unknown_conversion {
     return ("%s", $bar_bar);
 }
 
-# to avoid multiple patching in the same indicator update()
-my $prev_update_id;
-
 sub update {
     my ($self, %args) = @_;
 
@@ -250,8 +250,7 @@ sub update {
         return if $now - $self->{show_delay} < $self->{_last_hide_time};
     }
 
-    $self->_patch unless $args{_update_id} && $prev_update_id && $args{_update_id} eq $prev_update_id;
-    $prev_update_id = $args{_update_id};
+    $self->_patch;
 
     $self->cleanup;
 
