@@ -24,7 +24,6 @@ sub _patch {
         $out->{patch_handle1} = Monkey::Patch::Action::patch_package(
             'Log::Any::Adapter::Screen', 'hook_before_log', 'replace',
             sub {
-                use Time::HiRes qw(time); open my $fh, ">>", "/tmp/logany.log"; print $fh time(), " hook_before_log\n";
                 # we install a hook to clean up progress indicator first before
                 # we print log message to the screen.
                 $out->cleanup(1);
@@ -48,8 +47,6 @@ sub _patch {
             'Log::Any::Adapter::Screen', 'hook_after_log', 'replace',
             sub {
                 my ($self, $msg) = @_;
-
-                use Time::HiRes qw(time); open my $fh, ">>", "/tmp/logany.log"; print $fh time(), " hook_after_log msg=<$msg>\n";
 
                 # make sure we print a newline after logging so progress bar
                 # starts at column 1
